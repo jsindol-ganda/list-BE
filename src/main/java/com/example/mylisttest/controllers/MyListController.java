@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.mylisttest.interfaces.MyListService;
 import com.example.mylisttest.models.Note;
+import com.example.mylisttest.models.NoteResponse;
 import com.google.gson.Gson;
 
 import io.micrometer.common.util.StringUtils;
@@ -50,24 +51,25 @@ public class MyListController {
 	
 	@PostMapping(path = "addNote")
 	@CrossOrigin(origins = "http://localhost:4200")
-	public ResponseEntity<String> addNote(@RequestBody String payload) {
+	public ResponseEntity<NoteResponse> addNote(@RequestBody String payload) {
 		Gson gson = new Gson();
+		NoteResponse noteResponse = new NoteResponse(HttpStatus.OK, "Note Added");
 		listService.addNote(gson.fromJson(payload, Note.class));
-		return new ResponseEntity<String>("Note Added", HttpStatus.OK);
+		return new ResponseEntity<NoteResponse>(noteResponse, HttpStatus.OK);
 	}
 	
 	@PutMapping(path = "updateNote")
 	@CrossOrigin(origins = "http://localhost:4200")
-	public ResponseEntity<String> updateNote(@RequestBody String payload) {
-		ResponseEntity<String> response;
+	public ResponseEntity<NoteResponse> updateNote(@RequestBody String payload) {
+		ResponseEntity<NoteResponse> response;
 		Gson gson = new Gson();
 		Note toBeUpdatedNote = gson.fromJson(payload, Note.class);
 		
 		if (toBeUpdatedNote.getId() != 0) {
 			listService.updateNote(toBeUpdatedNote);
-			response = new ResponseEntity<>("Note Updated", HttpStatus.OK);
+			response = new ResponseEntity<>(new NoteResponse(HttpStatus.OK, "Note Updated"), HttpStatus.OK);
 		} else {
-			response = new ResponseEntity<>("Failed to update note", HttpStatus.BAD_REQUEST);
+			response = new ResponseEntity<>(new NoteResponse(HttpStatus.BAD_REQUEST, "Failed to update note"), HttpStatus.BAD_REQUEST);
 		}
 		
 		return response;
@@ -75,14 +77,14 @@ public class MyListController {
 	
 	@DeleteMapping(path = "deleteNote")
 	@CrossOrigin(origins = "http://localhost:4200")
-	public ResponseEntity<String> deleteNote(@RequestBody HashMap<String, Integer> request) {
-		ResponseEntity<String> response;
+	public ResponseEntity<NoteResponse> deleteNote(@RequestBody HashMap<String, Integer> request) {
+		ResponseEntity<NoteResponse> response;
 
 		if (!StringUtils.isEmpty(request.get("id").toString())) {
 			listService.deleteNote(request.get("id").intValue());
-			response = new ResponseEntity<>("Note deleted", HttpStatus.OK);
+			response = new ResponseEntity<>(new NoteResponse(HttpStatus.OK, "Note Deleted"), HttpStatus.OK);
 		} else {
-			response = new ResponseEntity<>("Failed to delete note", HttpStatus.BAD_REQUEST);
+			response = new ResponseEntity<>(new NoteResponse(HttpStatus.BAD_REQUEST, "Failed to delete note"), HttpStatus.BAD_REQUEST);
 		}
 		
 		return response;
