@@ -3,6 +3,7 @@ ENV HOME=/app
 RUN mkdir -p $HOME
 WORKDIR $HOME
 COPY . /app
+RUN chmod +x mvnw
 RUN --mount=type=cache,target=/root/.m2 ./mvnw -f $HOME/pom.xml clean package
 
 FROM eclipse-temurin:17-jdk-alpine
